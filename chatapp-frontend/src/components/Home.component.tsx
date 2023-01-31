@@ -2,13 +2,14 @@ import styled from 'styled-components';
 import { AuthenticatedRoute } from './AuthenticatedRoute';
 import { User as UserComponent } from './User.component';
 import { getAllUsers, postLogoutUser } from '../utils/api';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { User } from '../utils/types/User';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import { AuthContext } from '../utils/context/AuthContext';
 
 export const Home = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const fetchAllUsers = async () => {
     const users = (await getAllUsers()).data;
@@ -32,9 +33,17 @@ export const Home = () => {
         <ChatContainer>
           <div className="chat-layout">
             <h1>Chat</h1>
-            <Link to="/avatar">Set your avatar</Link>
 
             <FriendsSideBar>
+              <UserLayout>
+                <img src={user?.avatarUrl} alt="User Avatar" />
+                <UserInformationContainer>
+                  <h1>Your Profile</h1>
+                  <p className="status">Online</p>
+                  <Link to="/avatar">Change Avatar</Link>
+                </UserInformationContainer>
+              </UserLayout>
+
               {users.map((user) => (
                 <UserComponent key={user.id} user={user} />
               ))}
@@ -47,6 +56,62 @@ export const Home = () => {
     </AuthenticatedRoute>
   );
 };
+
+const UserLayout = styled.div`
+  cursor: pointer;
+  background-color: #0000005a;
+  display: flex;
+  height: 50px;
+  padding: 10px;
+  width: fit-content;
+  height: fit-content;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background-color: #000000b7;
+  }
+
+  &:active {
+    background-color: #0000007e;
+  }
+
+  img {
+    width: auto;
+    height: 50px;
+    margin-right: 10px;
+    border-radius: 50%;
+  }
+`;
+
+const UserInformationContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+
+  a {
+    color: #422da0;
+    text-decoration: none;
+    font-size: 10px;
+
+    &:hover {
+      color: #7660da;
+    }
+  }
+
+  .status {
+    font-size: 10px;
+  }
+
+  h1 {
+    font-size: 15px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+`;
 
 const HomeContainer = styled.div`
   display: flex;
